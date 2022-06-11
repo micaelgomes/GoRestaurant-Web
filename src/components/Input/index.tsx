@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import React, {
   InputHTMLAttributes,
   useEffect,
@@ -13,7 +14,7 @@ import { Container } from './styles';
 
 interface IInputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
-  icon?: React.ComponentType<IconBaseProps>;
+  icon?: React.ComponentType<IconBaseProps> | any;
 }
 
 const Input: React.FC<IInputProps> = ({ name, icon: Icon, ...rest }) => {

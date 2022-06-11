@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 
 import Header from '../../components/Header';
@@ -27,7 +28,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // TODO LOAD FOODS
+      const { data } = await api.get('/foods');
+      setFoods(data);
     }
 
     loadFoods();
@@ -37,20 +39,47 @@ const Dashboard: React.FC = () => {
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
     try {
-      // TODO ADD A NEW FOOD PLATE TO THE API
+      const foodData: Omit<IFoodPlate, 'id'> = {
+        ...food,
+        available: true,
+      };
+
+      api.post('/foods', foodData).then(({ data }) => {
+        setFoods(oldFoods => [...oldFoods, data]);
+      });
     } catch (err) {
       console.log(err);
     }
   }
 
   async function handleUpdateFood(
-    food: Omit<IFoodPlate, 'id' | 'available'>,
+    food: Omit<IFoodPlate, 'available'>,
   ): Promise<void> {
-    // TODO UPDATE A FOOD PLATE ON THE API
+    try {
+      const { id, name, image, price, description } = food;
+
+      const foodData: Omit<IFoodPlate, 'id'> = {
+        name,
+        image,
+        price,
+        description,
+        available: true,
+      };
+
+      api.put(`/foods/${id}`, foodData).then(({ data }) => {
+        const tmpFoods = foods.filter(f => f.id !== id);
+        setFoods([...tmpFoods, data]);
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async function handleDeleteFood(id: number): Promise<void> {
-    // TODO DELETE A FOOD PLATE FROM THE API
+    api.delete(`/foods/${id}`).then(() => {
+      const tmpFoods = foods.filter(food => food.id !== id);
+      setFoods(tmpFoods);
+    });
   }
 
   function toggleModal(): void {
@@ -62,7 +91,8 @@ const Dashboard: React.FC = () => {
   }
 
   function handleEditFood(food: IFoodPlate): void {
-    // TODO SET THE CURRENT EDITING FOOD ID IN THE STATE
+    setEditingFood(food);
+    toggleEditModal();
   }
 
   return (
